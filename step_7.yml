@@ -1,0 +1,8 @@
+---
+- hosts: controller_nodes
+  roles:
+    - step_7_1
+  tags: step7
+  environment: "{{ environment_variables }}"
+  vars:
+    - ansible_python_interpreter: "/root/ans-openstack-venv/bin/python"

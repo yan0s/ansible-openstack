@@ -1,0 +1,157 @@
+- name: Controller | Configure default networks | Create network 'int-net'
+  os_network:
+    state: present
+    name: int-net
+#    shared: no
+    auth: "{{ openstack_auth }}"
+
+- name: Controller | Configure default networks | Create subnet 'int-subnet'
+  os_subnet:
+    state: present
+    network_name: int-net
+    name: int-subnet
+    cidr: 10.0.0.0/24
+    dns_nameservers:
+       - 8.8.8.8
+       - 8.8.8.4
+    auth: "{{ openstack_auth }}"
+
+#- name: Controller | Configure default networks | dell
+#  os_network:
+#    state: absent
+#    name: ext_net
+#    auth: "{{ openstack_auth }}"
+
+- name: Controller | Configure default networks | Create network 'provider-net'
+  os_network:
+    state: present
+    name: provider-net
+    shared: yes
+    external: yes
+    provider_network_type: flat
+    provider_physical_network: provider
+    auth: "{{ openstack_auth }}"
+
+- name: Controller | Configure default networks | Create subnet 'provider-subnet'
+  os_subnet:
+    state: present
+    network_name: provider-net
+    name: provider-subnet
+    cidr: "{{ provider_cidr }}"
+    allocation_pool_start: "{{ provider_pool_start }}"
+    allocation_pool_end: "{{ provider_pool_end }}"
+    dns_nameservers:
+       - 8.8.8.8
+       - 8.8.8.4
+    auth: "{{ openstack_auth }}"
+
+- name: Controller | Configure default networks | Create router 'router', set default gateway and attach interface
+  os_router:
+    state: present
+    name: router
+    network: provider-net
+    interfaces:
+      - int-subnet
+    auth: "{{ openstack_auth }}"
+
+
+- name: Controller | Configure default networks | Register to variable security group 'default'
+  shell: 'openstack
+          --os-username={{ os_auth_vars.OS_USERNAME }}
+          --os-password={{ os_auth_vars.OS_PASSWORD }}
+          --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+          --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+          --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+          --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+          --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+          --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+          security group list -f json'
+  register: default_security_groups
+
+#- debug:
+#    msg: "{{ default_security_groups.stdout }}"
+
+- debug:
+    msg: "{{ item.ID }}"
+  with_items: "{{ default_security_groups.stdout }}"
+
+- name: Controller | Configure default networks | Allow 'icmp' traffic to 'default' security group
+  os_security_group_rule:
+    security_group: "{{ item.ID }}"
+    protocol: icmp
+    remote_ip_prefix: 0.0.0.0/0
+    auth: "{{ openstack_auth }}"
+  with_items: "{{ default_security_groups.stdout }}"
+
+- name: Controller | Configure default networks | Allow traffic at port '22' to 'default' security group
+  os_security_group_rule:
+    security_group: "{{ item.ID }}"
+    protocol: tcp
+    port_range_min: 22
+    port_range_max: 22
+    remote_ip_prefix: 0.0.0.0/0
+    auth: "{{ openstack_auth }}"
+  with_items: "{{ default_security_groups.stdout }}"
+
+- name: Controller | Configure default networks | Create .ssh directory
+  file:
+    path: /root/.ssh/
+    state: directory
+    mode: 0700
+  tags: pub_key
+
+- name: Controller | Configure default networks | Copy pub key to controller
+  copy:
+    src: dyos.pub
+    dest: /root/.ssh/dyos.pub
+    owner: root
+    group: root
+    mode: 0600
+  tags: pub_key
+
+- name: Controller | Configure default networks | Create new key pair
+  os_keypair:
+    state: present
+    name: new_os_key
+    public_key_file: /root/.ssh/dyos.pub
+    auth: "{{ openstack_auth }}"
+  tags: pub_key
+
+
+#neutron net-create int-net;
+#
+#neutron subnet-create --dns-nameserver 8.8.8.8 --name int-subnet int-net 10.0.0.0/24;
+#
+## "--provider:physical_network External" or physnet1 ([ml2_type_flat] in /etc/neutron/plugins/ml2/ml2_conf.ini)
+#
+#neutron net-create ext-net --router:external=True --shared --provider:network_type flat --provider:physical_network external;
+#
+#neutron subnet-create --name ext-subnet --dns-nameserver 8.8.8.8 --allocation-pool start=192.168.1.50,end=192.168.1.99 ext-net 192.168.1.0/24;
+#
+#neutron router-create router;
+#
+#neutron router-gateway-set router ext-net;
+#
+#neutron router-interface-add router int-subnet;
+#
+##neutron security-group-create sec-group
+#
+#
+#
+#
+#openstack security group list
+#
+#
+#
+## Get default security < group id >
+#
+#neutron security-group-rule-create --protocol icmp < group id >
+#
+#neutron security-group-rule-create --protocol tcp --port-range-min 22 --port-range-max 22 < group id >
+#
+## Test
+#
+## Create keypair and save localy to .pem file
+## nova keypair-add os_key > os_key.pem
+#
+#nova keypair-add --pub_key ~/os_key.pub os_key

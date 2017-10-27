@@ -1,0 +1,10 @@
+---
+- hosts: controller_nodes
+  roles:
+    - step_6_1
+  tags: step6
+
+- hosts: compute_nodes
+  roles:
+    - step_6_2
+  tags: step6

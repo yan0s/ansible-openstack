@@ -1,0 +1,12 @@
+- name: Controller | RabbitMQ and Keystone Setup | Add user 'openstack' to RabbitMQ
+  include: tasks/rabbitmq_keystone_setup.yml
+  tags:
+    - rabbitmq_keystone_setup
+
+- name: Controller | Openstack Users & Endpoints | Add user 'openstack' to RabbitMQ
+  include: tasks/openstack_users_endpoints_setup.yml
+  vars:
+    - ansible_python_interpreter: "/root/ans-openstack-venv/bin/python"
+
+#  environment: environment_variables
+

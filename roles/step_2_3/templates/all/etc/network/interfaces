@@ -1,0 +1,41 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+
+# The management network interface
+auto {{ management_interface }}
+iface {{ management_interface }} inet static
+#        address {{ management_ip }}
+        address {{ inventory_hostname }}
+        netmask {{ management_netmask }}
+        gateway {{ management_gateway }}
+        dns-nameservers {{ management_dns_nameservers }}
+
+
+# The provider network interface
+auto {{ provider_interface }}
+iface {{ provider_interface }} inet manual
+  up ip l s $IFACE up
+  down ip l s $IFACE down
+
+auto br-provider
+iface br-provider inet static
+        address {{ provider_ip }}
+        netmask {{ provider_netmask }}
+        gateway {{ provider_gateway }}
+        dns-nameservers {{ provider_dns_nameservers }}
+
+
+# The overlay network interface
+auto {{ overlay_interface }}
+iface {{ overlay_interface }} inet static
+        address {{ overlay_ip }}
+        netmask {{ overlay_netmask }}
+        gateway {{ overlay_gateway }}
+        dns-nameservers {{ overlay_dns_nameservers }}

@@ -1,0 +1,225 @@
+#rsync --chown=root:root --chmod=0644 -a ~/Dropbox/work/demokritos/MNLAB/openstack_auto_newton_normal/controller_files/step_1/etc/mysql/mariadb.conf.d/99-openstack.cnf root@$TEMP_TARGET_IP:/etc/mysql/mariadb.conf.d/
+#
+- name: Controller | MariadDB config file
+  template:
+    src: controller_files/step_1/etc/mysql/mariadb.conf.d/99-openstack.cnf
+    dest: /etc/mysql/mariadb.conf.d/99-openstack.cnf
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+  tags: step2
+
+
+#rsync -og --chown=root:root --chmod=0644 ~/Dropbox/work/demokritos/MNLAB/openstack_auto_newton_normal/controller_files/step_1/etc/memcached.conf root@$TEMP_TARGET_IP:/etc/
+#
+- name: Controller | Memcached config file
+  template:
+    src: controller_files/step_1/etc/memcached.conf
+    dest: /etc/memcached.conf
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+
+#rsync --chown=root:root --chmod=0644 -a ~/Dropbox/work/demokritos/MNLAB/openstack_auto_newton_normal/controller_files/step_1/etc/keystone/keystone.conf root@$TEMP_TARGET_IP:/etc/keystone/
+#
+- name: Controller | Keystone config file
+  template:
+    src: controller_files/step_1/etc/keystone/keystone.conf
+    dest: /etc/keystone/keystone.conf
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+
+#rsync --chown=root:root --chmod=0644 -a ~/Dropbox/work/demokritos/MNLAB/openstack_auto_newton_normal/controller_files/step_1/etc/apache2/apache2.conf root@$TEMP_TARGET_IP:/etc/apache2/
+#
+- name: Controller | Apache2 config file
+  template:
+    src: controller_files/step_1/etc/apache2/apache2.conf
+    dest: /etc/apache2/apache2.conf
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+
+#rsync --chown=glance:glance --chmod=0644 -a ~/Dropbox/work/demokritos/MNLAB/openstack_auto_newton_normal/controller_files/step_1/etc/glance/* root@$TEMP_TARGET_IP:/etc/glance/
+#
+- name: Controller | Glance-api config file
+  template:
+    src: controller_files/step_1/etc/glance/glance-api.conf
+    dest: /etc/glance/glance-api.conf
+    owner: glance
+    group: glance
+    mode: 0644
+    force: yes
+
+- name: Controller | Glance-registry config file
+  template:
+    src: controller_files/step_1/etc/glance/glance-registry.conf
+    dest: /etc/glance/glance-registry.conf
+    owner: glance
+    group: glance
+    mode: 0644
+    force: yes
+
+#rsync --chown=nova:nova --chmod=0640 -a ~/Dropbox/work/demokritos/MNLAB/openstack_auto_newton_normal/controller_files/step_1/etc/nova/nova.conf root@$TEMP_TARGET_IP:/etc/nova/
+#
+- name: Controller | Nova config file
+  template:
+    src: controller_files/step_1/etc/nova/nova.conf
+    dest: /etc/nova/nova.conf
+    owner: nova
+    group: nova
+    mode: 0640
+    force: yes
+
+- name: Controller | Nova policy.json config file
+  template:
+    src: controller_files/step_1/etc/nova/policy.json
+    dest: /etc/nova/policy.json
+    owner: nova
+    group: nova
+    mode: 0640
+    force: yes
+
+#rsync --chown=heat:heat --chmod=0644 -a ~/Dropbox/work/demokritos/MNLAB/openstack_auto_newton_normal/controller_files/step_1/etc/heat/heat.conf root@$TEMP_TARGET_IP:/etc/heat/
+#
+- name: Controller | Heat config file
+  template:
+    src: controller_files/step_1/etc/heat/heat.conf
+    dest: /etc/heat/heat.conf
+    owner: heat
+    group: heat
+    mode: 0644
+    force: yes
+
+#rsync -og --chown=root:neutron --chmod=0644 ~/Dropbox/work/demokritos/MNLAB/openstack_auto_newton_normal/controller_files/step_1/etc/neutron/* root@$TEMP_TARGET_IP:/etc/neutron/
+#
+- name: Controller | Neutron dhcp_agent config file
+  template:
+    src: controller_files/step_1/etc/neutron/dhcp_agent.ini
+    dest: /etc/neutron/dhcp_agent.ini
+    owner: root
+    group: neutron
+    mode: 0644
+    force: yes
+  tags: forgotten_files
+
+- name: Controller | Neutron l3_agent config file
+  template:
+    src: controller_files/step_1/etc/neutron/l3_agent.ini
+    dest: /etc/neutron/l3_agent.ini
+    owner: root
+    group: neutron
+    mode: 0644
+    force: yes
+  tags: forgotten_files
+
+- name: Controller | Neutron metadata_agent config file
+  template:
+    src: controller_files/step_1/etc/neutron/metadata_agent.ini
+    dest: /etc/neutron/metadata_agent.ini
+    owner: root
+    group: neutron
+    mode: 0644
+    force: yes
+  tags: forgotten_files
+
+- name: Controller | Neutron conf config file
+  template:
+    src: controller_files/step_1/etc/neutron/neutron.conf
+    dest: /etc/neutron/neutron.conf
+    owner: root
+    group: neutron
+    mode: 0644
+    force: yes
+
+#rsync -og --chown=root:neutron --chmod=0644 ~/Dropbox/work/demokritos/MNLAB/openstack_auto_newton_normal/controller_files/step_1/etc/neutron/plugins/ml2/* root@$TEMP_TARGET_IP:/etc/neutron/plugins/ml2/
+#
+- name: Controller | Neutron-Plugins-ML2 ml2_conf.ini config file
+  template:
+    src: controller_files/step_1/etc/neutron/plugins/ml2/ml2_conf.ini
+    dest: /etc/neutron/plugins/ml2/ml2_conf.ini
+    owner: root
+    group: neutron
+    mode: 0644
+    force: yes
+
+- name: Controller | Neutron-Plugins-ML2 openvswitch_agent.ini config file
+  template:
+    src: controller_files/step_1/etc/neutron/plugins/ml2/openvswitch_agent.ini
+    dest: /etc/neutron/plugins/ml2/openvswitch_agent.ini
+    owner: root
+    group: neutron
+    mode: 0644
+    force: yes
+
+#rsync --chown=root:root --chmod=0644 -a ~/Dropbox/work/demokritos/MNLAB/openstack_auto_newton_normal/controller_files/step_1/etc/openstack-dashboard/local_settings.py root@$TEMP_TARGET_IP:/etc/openstack-dashboard/
+
+- name: Controller | Dashboard config config file
+  template:
+    src: controller_files/step_1/etc/openstack-dashboard/local_settings.py
+    dest: /etc/openstack-dashboard/local_settings.py
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+
+- name: Controller | Dashboard change /var/lib/openstack-dashboard/secret_key file permissions
+  file:
+    path: /var/lib/openstack-dashboard/secret_key
+    owner: www-data
+    group: root
+    mode: 0600
+
+- name: All Hosts | Network interfaces file
+  template:
+    src: controller_files/step_1/etc/network/interfaces
+    dest: /etc/network/interfaces
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+
+- name: All Hosts | rc.local file
+  template:
+    src: controller_files/step_1/rc.local
+    dest: /etc/rc.local
+    owner: root
+    group: neutron
+    mode: 0755
+    force: yes
+
+
+- name: Controller | ovs_config.sh file
+  template:
+    src: controller_files/step_1/ovs_config.sh
+    dest: /root/ovs_config.sh
+    owner: root
+    group: root
+    mode: 0755
+    force: yes
+
+- name: Controller | Add crontab at reboot run ovs_config.sh file
+  cron:
+    name: "Run ovs_config.sh"
+    special_time: reboot
+    job: "sleep 1m;bash /root/ovs_config.sh >> /root/cron.txt"
+
+- name: Controller | Add crontab at reboot start MySQL
+  cron:
+    name: "Start MySQL"
+    special_time: reboot
+    job: "sleep 30s;service mysql start"
+
+- name: Controller | Add second routing table for multiple default gateways
+  template:
+    src: controller_files/step_1/etc/iproute2/rt_tables
+    dest: /etc/iproute2/rt_tables
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+  tags: 2nd_routing_table

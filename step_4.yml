@@ -1,0 +1,5 @@
+---
+- hosts: controller_nodes
+  roles:
+    - step_4_1
+  tags: step4

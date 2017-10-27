@@ -1,0 +1,46 @@
+
+- name: Controller | Openstack DB Sync | Apache2 and MySQL restart
+  service:
+    name: "{{item}}"
+    state: restarted
+  with_items:
+  - apache2
+  - mysql
+
+
+- name: Controller | Openstack DB Sync | 'keystone-manage db_sync' as user 'keystone'
+  shell: 'su -s /bin/sh -c "keystone-manage db_sync" keystone'
+
+- name: Controller | Openstack DB Sync | Apache2 restart
+  service:
+    name: apache2
+    state: restarted
+
+- name: Controller | Openstack DB Sync | Remove file /var/lib/keystone/keystone.db
+  file:
+    state: absent
+    path: "/var/lib/keystone/keystone.db"
+
+- name: Controller | Openstack DB Sync | 'glance-manage db_sync' as user 'glance'
+  shell: 'su -s /bin/sh -c "glance-manage db_sync" glance'
+
+
+- name: Controller | Openstack DB Sync | 'nova-manage api_db sync' as user 'nova'
+  shell: 'su -s /bin/sh -c "nova-manage api_db sync" nova'
+
+- name: Controller | Openstack DB Sync | 'nova-manage cell_v2 map_cell0' as user 'nova'
+  shell: 'su -s /bin/sh -c "nova-manage cell_v2 map_cell0" nova'
+
+- name: Controller | Openstack DB Sync | 'cell_v2 create_cell --name=cell1 --verbose' as user 'nova'
+  shell: 'su -s /bin/sh -c "nova-manage cell_v2 create_cell --name=cell1 --verbose" nova'
+
+- name: Controller | Openstack DB Sync | 'nova-manage db sync' as user 'nova'
+  shell: 'su -s /bin/sh -c "nova-manage db sync" nova'
+
+
+- name: Controller | Openstack DB Sync | 'neutron-db-manage ...' as user 'neutron'
+  shell: 'su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron'
+
+
+- name: Controller | Openstack DB Sync | 'heat-manage db_sync' as user 'heat'
+  shell: 'su -s /bin/sh -c "heat-manage db_sync" heat'

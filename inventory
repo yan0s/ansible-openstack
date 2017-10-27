@@ -1,0 +1,12 @@
+
+
+[controller_nodes]
+192.168.2.197 ansible_user="{{ GLOB_OS_SSH_USERNAME }}" management_interface="{{ controller_management_interface }}" management_ip="{{ controller_management_ip }}" overlay_interface="{{ controller_overlay_interface }}" overlay_ip="{{ controller_overlay_ip }}" hostname="{{ controller_hostname }}" provider_interface="{{ controller_provider_interface }}" provider_ip="{{ controller_provider_ip }}"
+
+[compute_nodes]
+192.168.2.102 ansible_user="{{ GLOB_OS_SSH_USERNAME }}" management_interface="{{ compute1_management_interface }}" management_ip="{{ compute1_management_ip }}" overlay_interface="{{ compute1_overlay_interface }}" overlay_ip="{{ compute1_overlay_ip }}" hostname="{{ compute1_hostname }}"
+
+
+[all_hosts:children]
+controller_nodes
+compute_nodes

@@ -1,0 +1,74 @@
+# invoked by: ../main.yml
+  - name: APT | Install Apt Packages MySQL, RabbitMQ, Memcached
+    apt: name={{item}} state=present
+    with_items:
+    - python-openstackclient
+    - mariadb-server
+    - python-pymysql
+    - rabbitmq-server
+    - memcached
+    - python-memcache
+    - python-mysqldb
+
+
+  - name: APT | Install Apt Packages Keystone
+    apt: name={{item}} state=present allow_unauthenticated=yes
+    with_items:
+    - keystone
+
+  - name: APT | Install Apt Packages Glance, Nova, Neutron, Dashboard, Heat
+    apt: name={{item}} state=present allow_unauthenticated=yes
+    with_items:
+    - glance
+    - nova-api
+    - nova-conductor
+    - nova-consoleauth
+    - nova-novncproxy
+    - nova-scheduler
+    - nova-placement-api
+    - neutron-server
+    - neutron-plugin-ml2
+    - openstack-dashboard
+    - heat-api
+    - heat-api-cfn
+    - heat-engine
+    - neutron-server
+    - neutron-plugin-ml2
+    - neutron-dhcp-agent
+    - neutron-metadata-agent
+    - neutron-openvswitch-agent
+    - neutron-l3-agent
+
+
+  - name: APT | Install Apt Packages Keystone
+    apt: name={{item}} state=present allow_unauthenticated=yes force=yes
+    with_items:
+    - python-pip
+    - build-essential
+    - libssl-dev
+    - libffi-dev
+    - python-dev
+
+  - name: PIP | pip upgrade pip
+    pip:
+      name: "{{ item }}"
+      extra_args: --upgrade
+    with_items:
+    - pip
+
+  - name: PIP | pip install virtualenv
+    pip:
+      name: "{{ item }}"
+      extra_args: --upgrade
+    with_items:
+    - virtualenv
+
+  - name: PIP | pip install shade in virtualenv
+    pip:
+      name: "{{ item }}"
+      virtualenv: /root/ans-openstack-venv
+      extra_args: --upgrade
+    with_items:
+    - shade
+
+

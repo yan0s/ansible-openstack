@@ -1,0 +1,23 @@
+---
+- hosts: controller_nodes
+  roles:
+    - step_2_1
+  tags:
+    - step_2_1
+    - step2
+
+
+- hosts: compute_nodes
+  roles:
+    - step_2_2
+  tags:
+    - step_2_2
+    - step2
+
+
+- hosts: all_hosts
+  roles:
+    - step_2_3
+  tags:
+    - step_2_3
+    - step2

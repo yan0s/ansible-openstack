@@ -1,0 +1,10 @@
+- name: Controller | Openstack Services Restart | All compute node services restart
+  service:
+    name: "{{item}}"
+    state: restarted
+  with_items:
+  - nova-compute
+  - neutron-openvswitch-agent
+
+
+

@@ -1,0 +1,9 @@
+  - name: APT | Install Apt Packages Nova Compute, Neutron OpenVSwitch
+    apt: name={{item}} state=present allow_unauthenticated=yes
+    with_items:
+    - nova-compute
+    - neutron-openvswitch-agent
+#    - neutron-dhcp-agent
+#    - neutron-metadata-agent
+
+

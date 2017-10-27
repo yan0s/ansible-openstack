@@ -1,0 +1,68 @@
+#- name: Controller | Openstack Services Restart | Wait for mysql to start
+#  pause:
+#    minutes: 1
+
+# TODO: move it somewhere else
+- name: Controller | Discover Hosts | 'nova-manage cell_v2 discover_hosts --verbose'
+  shell: 'su -s /bin/sh -c "nova-manage cell_v2 discover_hosts --verbose" nova'
+
+
+- name: Controller | Download and Register Images | Download cirros image
+  shell: wget http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
+  args:
+    creates: /root/cirros-0.3.4-x86_64-disk.img
+    chdir: /root/
+
+- name: Controller | Download and Register Images | Download ubuntu14 cloud image
+  shell: wget https://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img
+  args:
+    creates: /root/trusty-server-cloudimg-amd64-disk1.img
+    chdir: /root/
+
+- name: Controller | Download and Register Images | Download ubuntu16 cloud image
+  shell: wget https://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img
+  args:
+    creates: /root/xenial-server-cloudimg-amd64-disk1.img
+    chdir: /root/
+
+
+- name: Controller | Download and Register Images | Register cirros image
+  os_image:
+    auth: "{{ openstack_auth }}"
+    name: cirros
+    container_format: bare
+    disk_format: qcow2
+    is_public: yes
+    state: present
+    filename: /root/cirros-0.3.4-x86_64-disk.img
+    properties:
+      cpu_arch: x86_64
+      distro: ubuntu
+
+- name: Controller | Download and Register Images | Register Ubuntu Trusty 14 image
+  os_image:
+    auth: "{{ openstack_auth }}"
+    name: trusty64
+    container_format: bare
+    disk_format: qcow2
+    is_public: yes
+    state: present
+    filename: /root/trusty-server-cloudimg-amd64-disk1.img
+    properties:
+      cpu_arch: x86_64
+      distro: ubuntu
+
+- name: Controller | Download and Register Images | Register Ubuntu Xenial 16 image
+  os_image:
+    auth: "{{ openstack_auth }}"
+    name: xenial64
+    container_format: bare
+    disk_format: qcow2
+    is_public: yes
+    state: present
+    filename: /root/xenial-server-cloudimg-amd64-disk1.img
+    properties:
+      cpu_arch: x86_64
+      distro: ubuntu
+
+

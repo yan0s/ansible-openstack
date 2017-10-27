@@ -1,0 +1,24 @@
+---
+### Install packages
+#- include: step_1.yml
+#
+### Copy files
+#- include: step_2.yml
+#
+### Create Databases
+#- include: step_3.yml
+#
+### Openstack database sync
+#- include: step_4.yml
+#
+### RabbitMQ, Keystone and Endpoints setup
+#- include: step_5.yml
+#
+### Restart all services
+#- include: step_6.yml
+#
+### Download and register images
+#- include: step_7.yml
+
+## Default networking setup
+- include: step_8.yml

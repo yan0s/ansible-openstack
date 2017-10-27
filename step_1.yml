@@ -1,0 +1,24 @@
+---
+- hosts: all_hosts
+  roles:
+    - step_1_1
+  tags:
+    - step_1_1
+    - step1
+
+- hosts: controller_nodes
+  roles:
+    - step_1_2
+  environment:
+    LANG: "en_US.UTF-8"
+    LC_ALL: "en_US.UTF-8"
+  tags:
+    - step_1_2
+    - step1
+
+- hosts: compute_nodes
+  roles:
+    - step_1_3
+  tags:
+    - step_1_3
+    - step1

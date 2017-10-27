@@ -1,0 +1,88 @@
+---
+GLOB_OS_SSH_USERNAME: root
+GLOB_OS_PYTHON_VENV: /root/ansible_venv/bin/
+
+
+########## Variables to edit - START ##############################
+
+dns_domain:
+
+#hostname =
+
+# kvm or qemu
+virtualization_type: qemu
+
+controller_management_ip: 192.168.2.197
+controller_management_interface: enp0s3
+controller_provider_ip: 192.168.56.10
+controller_provider_interface: enp0s8
+controller_overlay_ip: 192.168.57.3
+controller_overlay_interface: enp0s9
+controller_hostname: homeController
+
+
+compute1_management_ip: 192.168.2.102
+compute1_management_interface: enp0s3
+compute1_overlay_ip: 192.168.57.2
+compute1_overlay_interface: enp0s8
+compute1_hostname: homeCompute1
+
+compute2_management_ip: 10.143.143.112
+compute2_openstack_ip: 192.168.0.3
+compute2_hostname: charCompute2
+
+api_password: pass1234
+
+# Management Interface Parameters for all controller nodes
+management_cidr: 192.168.2.0/24
+management_netmask: 255.255.255.0
+management_gateway: 192.168.2.1
+management_dns_nameservers: "8.8.8.8 8.8.4.4"
+
+# Provider Interface Parameters for all controller nodes
+provider_cidr: 192.168.56.0/24
+provider_netmask: 255.255.255.0
+provider_gateway: 192.168.56.1
+provider_dns_nameservers: "8.8.8.8 8.8.4.4"
+
+provider_pool_start: 192.168.56.100
+provider_pool_end: 192.168.56.150
+
+# Overlay Interface Parameters for all controller nodes
+overlay_netmask: 255.255.255.0
+
+########## Variables to edit  - END ##############################
+
+
+mysql_user: root
+mysql_password:
+
+# TO BE DONE - DO NOT CHANGE VALUES!
+keystone_db_pass: KEYSTONE_DBPASS
+glance_db_pass: GLANCE_DBPASS
+nova_db_pass: NOVA_DBPASS
+neutron_db_pass: NEUTRON_DBPASS
+heat_db_pass: HEAT_DBPASS
+
+metadata_secret: METADATA_SECRET
+rabbit_pass: RABBIT_PASS
+
+openstack_auth:
+  auth_url: 'http://{{ controller_management_ip }}:35357/v3'
+  project_domain_id: 'default'
+  user_domain_id: 'default'
+  username: 'admin'
+  password: '{{ api_password }}'
+  project_name: 'admin'
+
+
+environment_variables:
+  OS_PROJECT_DOMAIN_NAME: 'default'
+  OS_USER_DOMAIN_NAME: 'default'
+  OS_PROJECT_NAME: 'admin'
+  OS_USERNAME: 'admin'
+  OS_PASSWORD: '{{ api_password }}'
+  OS_AUTH_URL: 'http://{{ controller_management_ip }}:35357/v3'
+# These are important for os_.. ansible modules authentication
+  OS_IDENTITY_API_VERSION: '3'
+  OS_IMAGE_API_VERSION: '2'

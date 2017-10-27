@@ -1,0 +1,952 @@
+# invoked by: ../main.yml
+
+## Create Users ###########################################################################
+
+
+#  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'cloudformation' 'public'
+#    shell: openstack endpoint list | grep -E 'cloudformation.*public|public.*cloudformation' | awk -F'|' '{print $2}'
+#    register: endpoint_cloudformation_public_exists
+#
+#    when: endpoint_cloudformation_public_exists.stdout == ""
+
+
+### NEW - START
+
+#  - name: Controller | Openstack Users & Endpoints | Add Openstack users admin, demo, glance, nova, neutron, heat
+#    command: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           user create --domain default --password {{ api_password }} {{ item }}'
+#    with_items:
+#      - admin
+#      - demo
+#      - glance
+#      - nova
+#      - neutron
+#      - heat
+#    tags:
+#      - add_users
+#      - step5_2_manual
+#    ignore_errors: yes
+#
+#
+#  - name: Controller | Openstack Users & Endpoints | Add Openstack domain 'heat'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           domain create --description "Stack projects and users" heat'
+#    tags:
+#      - add_users
+#      - step5_2_manual
+#
+#  - name: Controller | Openstack Users & Endpoints | Add Openstack user 'heat_domain_admin'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           user create --domain heat --password {{ api_password }} heat_domain_admin'
+#    tags:
+#      - add_users
+#      - step5_2_manual
+
+### NEW - END
+
+
+## OLD - START
+
+  - name: Controller | Openstack Users & Endpoints | Add Openstack user admin, demo, glance, nova, neutron, heat
+    os_user:
+      state: present
+      name: "{{ item }}"
+      password: "{{ api_password }}"
+#      update_password: on_create
+      domain: default
+      auth: "{{ openstack_auth }}"
+    with_items:
+      - admin
+      - demo
+      - glance
+      - nova
+      - neutron
+      - heat
+      - placement
+    tags:
+      - add_users
+      - step5_2_os_module
+
+  - name: Controller | Openstack Users & Endpoints | Add Openstack domain 'heat'
+    os_keystone_domain:
+      state: present
+      name: heat
+      description: "Stack projects and users"
+      auth: "{{ openstack_auth }}"
+    tags:
+      - add_users
+      - step5_2_os_module
+
+
+  - name: Controller | Openstack Users & Endpoints | Add Openstack user 'heat_domain_admin'
+    os_user:
+      state: present
+      name: heat_domain_admin
+      password: "{{ api_password }}"
+#      update_password: on_create
+      domain: heat
+      auth: "{{ openstack_auth }}"
+    tags:
+      - add_users
+      - step5_2_os_module
+
+## OLD - END
+
+
+### NEW - START
+
+#  - name: Controller | Openstack Users & Endpoints | Add Openstack project 'service'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           project create --domain default  --description "Service Project" service'
+#    tags:
+#      - add_projects
+#      - step5_2_manual
+#
+#  - name: Controller | Openstack Users & Endpoints | Add Openstack project 'demo'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           project create --domain default  --description "Demo Project" demo'
+#    tags:
+#      - add_projects
+#      - step5_2_manual
+#
+#
+#  - name: Controller | Openstack Users & Endpoints | Add Openstack role 'user'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           role create user'
+#    tags:
+#      - add_projects
+#      - step5_2_manual
+#
+#
+#
+#  - name: Controller | Openstack Users & Endpoints | Associate Openstack user 'demo' with role 'user'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           role add --project demo --user demo user'
+#    tags:
+#      - add_projects
+#      - step5_2_manual
+
+
+### NEW - END
+
+
+## OLD - START
+
+  - name: Controller | Openstack Users & Endpoints | Add Openstack project 'service'
+    os_project:
+      state: present
+      name: service
+      description: "Service Project"
+      domain: default
+      enabled: True
+      auth: "{{ openstack_auth }}"
+    tags: step5_2_os_module
+
+
+  - name: Controller | Openstack Users & Endpoints | Add Openstack project 'demo'
+    os_project:
+      state: present
+      name: demo
+      description: "Service Project"
+      domain: default
+      enabled: True
+      auth: "{{ openstack_auth }}"
+    tags: step5_2_os_module
+
+
+  - name: Controller | Openstack Users & Endpoints | Add Openstack role 'user'
+    os_keystone_role:
+      state: present
+      name: user
+      auth: "{{ openstack_auth }}"
+    tags: step5_2_os_module
+
+
+  - name: Controller | Openstack Users & Endpoints | Associate Openstack user 'demo' with role 'user'
+    os_user_role:
+      user: demo
+      role: user
+      project: demo
+      auth: "{{ openstack_auth }}"
+    tags: step5_2_os_module
+
+## OLD - START
+
+
+  - name: Controller | Openstack Users & Endpoints | Update Keystone keystone-paste.ini file
+    template:
+      src: etc/keystone/keystone-paste.ini
+      dest: /etc/keystone/keystone-paste.ini
+      owner: root
+      group: root
+      mode: 0644
+      force: yes
+
+  - name: Controller | Openstack Users & Endpoints | Add Openstack user 'admin' issue token | is it necessary?
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           token issue'
+    tags: issue_tokens
+
+
+  - name: Controller | Openstack Users & Endpoints | Add Openstack user 'demo' issue token | is it necessary?
+    shell: 'openstack
+           --os-username=demo
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name=demo
+           --os-auth-url=http://{{ controller_management_ip }}:5000/v3
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           token issue'
+    tags: issue_tokens
+
+
+
+
+
+## TODO | Below code should be a loop
+
+
+## Glance Role, Service and Endpoints  ############
+
+### NEW - START
+
+#  - name: Controller | Openstack Users & Endpoints | Associate Openstack user 'glance' with role 'admin'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           role add --project service --user glance admin'
+#    tags: step5_2_manual
+#
+#  - name: Controller | Openstack Users & Endpoints | Create Openstack service 'glance'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           service create --name glance --description "OpenStack Image" image'
+#    tags: step5_2_manual
+
+### NEW - END
+
+
+## OLD - START
+
+  - name: Controller | Openstack Users & Endpoints | Associate Openstack user 'glance' with role 'admin'
+    os_user_role:
+      user: glance
+      role: admin
+      project: service
+      auth: "{{ openstack_auth }}"
+    tags: step5_2_os_module
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack service 'glance'
+    os_keystone_service:
+      state: present
+      name: glance
+      service_type: image
+      description: "OpenStack Image Service"
+      auth: "{{ openstack_auth }}"
+    tags: step5_2_os_module
+
+## OLD - END
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'image' 'public'
+    shell: openstack endpoint list | grep -E 'image.*public|public.*image' | awk -F'|' '{print $2}'
+    register: endpoint_image_public_exists
+
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'public' endpoint for 'image' service (glance)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne image public http://{{ controller_management_ip }}:9292'
+    when: endpoint_image_public_exists.stdout == ""
+
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'image' 'internal'
+    shell: openstack endpoint list | grep -E 'image.*internal|internal.*image' | awk -F'|' '{print $2}'
+    register: endpoint_image_internal_exists
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'internal' endpoint for 'image' service (glance)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne image internal http://{{ controller_management_ip }}:9292'
+    when: endpoint_image_internal_exists.stdout == ""
+
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'image' 'admin'
+    shell: openstack endpoint list | grep -E 'image.*admin|admin.*image' | awk -F'|' '{print $2}'
+    register: endpoint_image_admin_exists
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'admin' endpoint for 'image' service (glance)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne image admin http://{{ controller_management_ip }}:9292'
+    when: endpoint_image_admin_exists.stdout == ""
+
+
+
+## Nova Role, Service and Endpoints  ############
+
+### NEW - START
+
+#  - name: Controller | Openstack Users & Endpoints | Associate Openstack user 'nova' with role 'admin'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           role add --project service --user nova admin'
+#    tags: step5_2_manual
+#
+#
+#  - name: Controller | Openstack Users & Endpoints | Create Openstack service 'nova'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           service create --name nova --description "OpenStack Compute" compute'
+#    tags: step5_2_manual
+
+### NEW - END
+
+
+## OLD - START
+
+  - name: Controller | Openstack Users & Endpoints | Associate Openstack user 'nova' with role 'admin'
+    os_user_role:
+      user: nova
+      role: admin
+      project: service
+      auth: "{{ openstack_auth }}"
+    tags: step5_2_os_module
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack service 'nova'
+    os_keystone_service:
+      state: present
+      name: nova
+      service_type: compute
+      description: "OpenStack Compute Service"
+      auth: "{{ openstack_auth }}"
+    tags: step5_2_os_module
+
+## OLD - END
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'compute' 'public'
+    shell: openstack endpoint list | grep -E 'compute.*public|public.*compute' | awk -F'|' '{print $2}'
+    register: endpoint_compute_public_exists
+
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'public' endpoint for 'compute' service (nova)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne compute public http://{{ controller_management_ip }}:8774/v2.1/%\(tenant_id\)s'
+    when: endpoint_compute_public_exists.stdout == ""
+
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'compute' 'internal'
+    shell: openstack endpoint list | grep -E 'compute.*internal|internal.*compute' | awk -F'|' '{print $2}'
+    register: endpoint_compute_internal_exists
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'internal' endpoint for 'compute' service (nova)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne compute internal http://{{ controller_management_ip }}:8774/v2.1/%\(tenant_id\)s'
+    when: endpoint_compute_internal_exists.stdout == ""
+
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'compute' 'admin'
+    shell: openstack endpoint list | grep -E 'compute.*admin|admin.*compute' | awk -F'|' '{print $2}'
+    register: endpoint_compute_admin_exists
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'admin' endpoint for 'compute' service (nova)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne compute admin http://{{ controller_management_ip }}:8774/v2.1/%\(tenant_id\)s'
+    when: endpoint_compute_admin_exists.stdout == ""
+
+
+# Placement
+
+  - name: Controller | Openstack Users & Endpoints | Associate Openstack user 'placement' with role 'admin'
+    os_user_role:
+      user: placement
+      role: admin
+      project: service
+      auth: "{{ openstack_auth }}"
+    tags: step5_2_os_module
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack service 'placement'
+    os_keystone_service:
+      state: present
+      name: placement
+      service_type: placement
+      description: "Placement API"
+      auth: "{{ openstack_auth }}"
+    tags: step5_2_os_module
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'placement' 'public'
+    shell: openstack endpoint list | grep -E 'placement.*public|public.*placement' | awk -F'|' '{print $2}'
+    register: endpoint_placement_public_exists
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'public' endpoint for 'placement' service (nova)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne placement public http://{{ controller_management_ip }}:8778'
+    when: endpoint_placement_public_exists.stdout == ""
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'placement' 'internal'
+    shell: openstack endpoint list | grep -E 'placement.*internal|internal.*placement' | awk -F'|' '{print $2}'
+    register: endpoint_placement_internal_exists
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'internal' endpoint for 'placement' service (nova)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne placement internal http://{{ controller_management_ip }}:8778'
+    when: endpoint_placement_internal_exists.stdout == ""
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'placement' 'admin'
+    shell: openstack endpoint list | grep -E 'placement.*admin|admin.*placement' | awk -F'|' '{print $2}'
+    register: endpoint_placement_admin_exists
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'admin' endpoint for 'placement' service (nova)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne placement admin http://{{ controller_management_ip }}:8778'
+    when: endpoint_placement_admin_exists.stdout == ""
+
+#openstack service create --name placement --description "Placement API" placement
+#openstack endpoint create --region RegionOne placement public http://controller:8778
+#openstack endpoint create --region RegionOne placement internal http://controller:8778
+#openstack endpoint create --region RegionOne placement admin http://controller:8778
+
+## Neutron Role, Service and Endpoints  ############
+
+### NEW - START
+
+#  - name: Controller | Openstack Users & Endpoints | Associate Openstack user 'neutron' with role 'admin'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           role add --project service --user neutron admin'
+#    tags: step5_2_manual
+#
+#  - name: Controller | Openstack Users & Endpoints | Create Openstack service 'neutron'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           service create --name neutron --description "OpenStack Network" network'
+#    tags: step5_2_manual
+
+### NEW - END
+
+## OLD - START
+
+  - name: Controller | Openstack Users & Endpoints | Associate Openstack user 'neutron' with role 'admin'
+    os_user_role:
+      user: neutron
+      role: admin
+      project: service
+      auth: "{{ openstack_auth }}"
+    tags: step5_2_os_module
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack service 'neutron'
+    os_keystone_service:
+      state: present
+      name: neutron
+      service_type: network
+      description: "OpenStack Networking Service"
+      auth: "{{ openstack_auth }}"
+    tags: step5_2_os_module
+
+## OLD - END
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'network' 'public'
+    shell: openstack endpoint list | grep -E 'network.*public|public.*network' | awk -F'|' '{print $2}'
+    register: endpoint_network_public_exists
+
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'public' endpoint for 'network' service (neutron)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne network public http://{{ controller_management_ip }}:9696'
+    when: endpoint_network_public_exists.stdout == ""
+
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'network' 'internal'
+    shell: openstack endpoint list | grep -E 'network.*internal|internal.*network' | awk -F'|' '{print $2}'
+    register: endpoint_network_internal_exists
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'internal' endpoint for 'network' service (neutron)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne network internal http://{{ controller_management_ip }}:9696'
+    when: endpoint_network_internal_exists.stdout == ""
+
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'network' 'admin'
+    shell: openstack endpoint list | grep -E 'network.*admin|admin.*network' | awk -F'|' '{print $2}'
+    register: endpoint_network_admin_exists
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'admin' endpoint for 'network' service (neutron)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne network admin http://{{ controller_management_ip }}:9696'
+    when: endpoint_network_admin_exists.stdout == ""
+
+
+## Heat Role, Service and Endpoints  ############
+
+### NEW - START
+
+#  - name: Controller | Openstack Users & Endpoints | Associate Openstack user 'heat' with role 'admin'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           role add --project service --user heat admin'
+#
+#
+#  - name: Controller | Openstack Users & Endpoints | Create Openstack service 'heat'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           service create --name heat --description "OpenStack Orchestration" orchestration'
+
+### NEW - START
+
+## OLD - START
+
+  - name: Controller | Openstack Users & Endpoints | Associate Openstack user 'heat' with role 'admin'
+    os_user_role:
+      user: heat
+      role: admin
+      project: service
+      auth: "{{ openstack_auth }}"
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack service 'heat'
+    os_keystone_service:
+      state: present
+      name: heat
+      service_type: orchestration
+      description: "OpenStack Orchestration Service"
+      auth: "{{ openstack_auth }}"
+
+## OLD - END
+
+### Orchestration
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'orchestration' 'public'
+    shell: openstack endpoint list | grep -E 'orchestration.*public|public.*orchestration' | awk -F'|' '{print $2}'
+    register: endpoint_orchestration_public_exists
+
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'public' endpoint for 'orchestration' service (heat)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne orchestration public http://{{ controller_management_ip }}:8004/v1/%\(tenant_id\)s'
+    when: endpoint_orchestration_public_exists.stdout == ""
+
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'orchestration' 'internal'
+    shell: openstack endpoint list | grep -E 'orchestration.*internal|internal.*orchestration' | awk -F'|' '{print $2}'
+    register: endpoint_orchestration_internal_exists
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'internal' endpoint for 'orchestration' service (heat)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne orchestration internal http://{{ controller_management_ip }}:8004/v1/%\(tenant_id\)s'
+    when: endpoint_orchestration_internal_exists.stdout == ""
+
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'orchestration' 'admin'
+    shell: openstack endpoint list | grep -E 'orchestration.*admin|admin.*orchestration' | awk -F'|' '{print $2}'
+    register: endpoint_orchestration_admin_exists
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'admin' endpoint for 'orchestration' service (heat)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne orchestration admin http://{{ controller_management_ip }}:8004/v1/%\(tenant_id\)s'
+    when: endpoint_orchestration_admin_exists.stdout == ""
+
+
+
+### Cloudformation
+
+### NEW - START
+
+#  - name: Controller | Openstack Users & Endpoints | Create Openstack service 'heat-cfn'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           service create --name heat-cfn --description "OpenStack Cloudformation" cloudformation'
+
+### NEW - END
+
+
+## OLD - START
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack service 'heat-cfn'
+    os_keystone_service:
+      state: present
+      name: heat-cfn
+      service_type: cloudformation
+      description: "OpenStack Cloudformation Service"
+      auth: "{{ openstack_auth }}"
+
+## OLD - END
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'cloudformation' 'public'
+    shell: openstack endpoint list | grep -E 'cloudformation.*public|public.*cloudformation' | awk -F'|' '{print $2}'
+    register: endpoint_cloudformation_public_exists
+
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'public' endpoint for 'cloudformation' service (heat)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne cloudformation public http://{{ controller_management_ip }}:8000/v1'
+    when: endpoint_cloudformation_public_exists.stdout == ""
+
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'cloudformation' 'internal'
+    shell: openstack endpoint list | grep -E 'cloudformation.*internal|internal.*cloudformation' | awk -F'|' '{print $2}'
+    register: endpoint_cloudformation_internal_exists
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'internal' endpoint for 'cloudformation' service (heat)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne cloudformation internal http://{{ controller_management_ip }}:8000/v1'
+    when: endpoint_cloudformation_internal_exists.stdout == ""
+
+
+
+  - name: Controller | Openstack Users & Endpoints | Register to variable endpoint id for 'cloudformation' 'admin'
+    shell: openstack endpoint list | grep -E 'cloudformation.*admin|admin.*cloudformation' | awk -F'|' '{print $2}'
+    register: endpoint_cloudformation_admin_exists
+
+  - name: Controller | Openstack Users & Endpoints | Create Openstack 'admin' endpoint for 'cloudformation' service (heat)
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           endpoint create --region RegionOne cloudformation admin http://{{ controller_management_ip }}:8000/v1'
+    when: endpoint_cloudformation_admin_exists.stdout == ""
+
+
+
+
+  - name: Controller | Openstack Users & Endpoints |  Associate Openstack user 'heat_domain_admin' with role 'admin' | with extra options!
+    shell: 'openstack
+           --os-username={{ os_auth_vars.OS_USERNAME }}
+           --os-password={{ os_auth_vars.OS_PASSWORD }}
+           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+           role add --domain heat --user-domain heat --user heat_domain_admin admin'
+
+
+### NEW - START
+
+#  - name: Controller | Openstack Users & Endpoints | Add Openstack role 'heat_stack_owner'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           role create heat_stack_owner'
+#
+#
+#  - name: Controller | Openstack Users & Endpoints | Associate Openstack user 'demo' with role 'heat_stack_owner'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           role add --project demo --user demo heat_stack_owner'
+#
+#  - name: Controller | Openstack Users & Endpoints | Add Openstack role 'heat_stack_user'
+#    shell: 'openstack
+#           --os-username={{ os_auth_vars.OS_USERNAME }}
+#           --os-password={{ os_auth_vars.OS_PASSWORD }}
+#           --os-project-domain-name={{ os_auth_vars.OS_PROJECT_DOMAIN_NAME }}
+#           --os-user-domain-name={{ os_auth_vars.OS_USER_DOMAIN_NAME }}
+#           --os-project-name={{ os_auth_vars.OS_PROJECT_NAME }}
+#           --os-auth-url={{ os_auth_vars.OS_AUTH_URL }}
+#           --os-identity-api-version={{ os_auth_vars.OS_IDENTITY_API_VERSION }}
+#           --os-image-api-version={{ os_auth_vars.OS_IMAGE_API_VERSION }}
+#           role create heat_stack_user'
+
+### NEW - END
+
+
+## OLD - START
+
+  - name: Controller | Openstack Users & Endpoints | Add Openstack role 'heat_stack_owner'
+    os_keystone_role:
+      state: present
+      name: heat_stack_owner
+      auth: "{{ openstack_auth }}"
+
+
+  - name: Controller | Openstack Users & Endpoints | Associate Openstack user 'demo' with role 'heat_stack_owner'
+    os_user_role:
+      user: demo
+      role: heat_stack_owner
+      project: demo
+      auth: "{{ openstack_auth }}"
+
+  - name: Controller | Openstack Users & Endpoints | Add Openstack role 'heat_stack_user'
+    os_keystone_role:
+      state: present
+      name: heat_stack_user
+      auth: "{{ openstack_auth }}"
+
+## OLD - END

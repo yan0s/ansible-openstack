@@ -1,0 +1,53 @@
+- name: All Hosts | etc hostname file
+  template:
+    src: all/etc/hostname
+    dest: /etc/hostname
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+
+- name: All Hosts | etc hosts file
+  template:
+    src: all/etc/hosts
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+
+- name: All Hosts | admin-openrc file
+  template:
+    src: all/admin-openrc
+    dest: /root/admin-openrc
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+
+- name: All Hosts | demo-openrc file
+  template:
+    src: all/demo-openrc
+    dest: /root/demo-openrc
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+
+- name: All Hosts | Restart host
+  shell: "sleep 2 && shutdown -r now"
+  async: 1
+  poll: 0
+  ignore_errors: true
+  tags: restart_hosts
+
+- name: All Hosts | Waiting for server to come back
+  wait_for:
+    host: "{{ inventory_hostname }}"
+    state: started
+    port: 22
+    delay: 60
+    timeout: 360
+  delegate_to: localhost
+  become: no
+  tags: restart_hosts

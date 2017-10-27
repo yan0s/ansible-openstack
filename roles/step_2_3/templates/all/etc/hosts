@@ -1,0 +1,15 @@
+127.0.0.1	localhost	{{ hostname }}
+
+# controller
+{{ controller_management_ip }}       {{ controller_hostname }}
+
+# compute1
+{{ compute1_management_ip }}       {{ compute1_hostname }}
+
+# compute2
+#{{ compute2_openstack_ip }}       {{ compute2_hostname }}
+
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters

@@ -1,0 +1,8 @@
+---
+- hosts: controller_nodes
+  roles:
+    - step_5_1
+  tags: step5
+  environment: "{{ environment_variables }}"
+  vars:
+    os_auth_vars: "{{ environment_variables }}"

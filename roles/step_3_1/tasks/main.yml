@@ -1,0 +1,200 @@
+- name: Controller | Database | Wait for mysql to start
+  pause:
+    minutes: 1
+
+
+- name: Controller | Database | MySQL restart
+  service:
+    name: mysql
+    state: started
+
+## Create database 'keystone' and user keystone to access it locally and remotely
+- name: Controller | Database | Create a new database with name 'keystone'
+  mysql_db:
+    name: keystone
+    state: present
+
+- name: Controller | Database | Create database user 'keystone', with access to 'keystone' database from '%'
+  mysql_user:
+    name: keystone
+    password: "{{ keystone_db_pass }}"
+    priv: 'keystone.*:ALL,GRANT'
+    state: present
+    host: "%"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+
+- name: Controller | Database | Create database user 'keystone', with access to 'keystone' database from 'localhost'
+  mysql_user:
+    name: keystone
+    password: "{{ keystone_db_pass }}"
+    priv: 'keystone.*:ALL,GRANT'
+    state: present
+    host: "localhost"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+
+
+## Create database 'glance' and user 'glance' to access it locally and remotely
+- name: Controller | Database | Create a new database with name 'glance'
+  mysql_db:
+    name: glance
+    state: present
+
+- name: Controller | Database | Create database user 'glance', with access to 'glance' database from '%'
+  mysql_user:
+    name: glance
+    password: "{{ glance_db_pass }}"
+    priv: 'glance.*:ALL,GRANT'
+    state: present
+    host: "%"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+
+- name: Controller | Database | Create database user 'glance', with access to 'glance' database from 'localhost'
+  mysql_user:
+    name: glance
+    password: "{{ glance_db_pass }}"
+    priv: 'glance.*:ALL,GRANT'
+    state: present
+    host: "localhost"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+
+
+## Create database 'nova_api' and user 'nova' to access it locally and remotely
+- name: Controller | Database | Create a new database with name 'nova_api'
+  mysql_db:
+    name: nova_api
+    state: present
+
+## Create database 'nova_cell0' and user 'nova' to access it locally and remotely
+- name: Controller | Database | Create a new database with name 'nova_cell0'
+  mysql_db:
+    name: nova_cell0
+    state: present
+
+
+- name: Controller | Database | Create database user 'nova', with access to 'nova_api' database from '%'
+  mysql_user:
+    name: nova
+    password: "{{ nova_db_pass }}"
+    priv: 'nova_api.*:ALL,GRANT'
+    state: present
+    host: "%"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+
+- name: Controller | Database | Create database user 'nova', with access to 'nova_api' database from 'localhost'
+  mysql_user:
+    name: nova
+    password: "{{ nova_db_pass }}"
+    priv: 'nova_api.*:ALL,GRANT'
+    state: present
+    host: "localhost"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+
+
+- name: Controller | Database | Create database user 'nova', with access to 'nova_cell0' database from '%'
+  mysql_user:
+    name: nova
+    password: "{{ nova_db_pass }}"
+    priv: 'nova_cell0.*:ALL,GRANT'
+    state: present
+    host: "%"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+#
+- name: Controller | Database | Create database user 'nova', with access to 'nova_cell0' database from 'localhost'
+  mysql_user:
+    name: nova
+    password: "{{ nova_db_pass }}"
+    priv: 'nova_cell0.*:ALL,GRANT'
+    state: present
+    host: "localhost"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+
+## Create database 'nova' and user 'nova' to access it locally and remotely
+- name: Controller | Database | Create a new database with name 'nova'
+  mysql_db:
+    name: nova
+    state: present
+
+- name: Controller | Database | Create database user 'nova', with access to 'nova' database from '%'
+  mysql_user:
+    name: nova
+    password: "{{ nova_db_pass }}"
+#    append_privs: yes
+    priv: 'nova%.*:ALL,GRANT'
+    state: present
+    host: "%"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+
+- name: Controller | Database | Create database user 'nova', with access to 'nova' database from 'localhost'
+  mysql_user:
+    name: nova
+    password: "{{ nova_db_pass }}"
+    append_privs: yes
+    priv: 'nova%.*:ALL,GRANT'
+    state: present
+    host: "localhost"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+
+
+## Create database 'neutron' and user 'neutron' to access it locally and remotely
+- name: Controller | Database | Create a new database with name 'neutron'
+  mysql_db:
+    name: neutron
+    state: present
+
+- name: Controller | Database | Create database user 'neutron', with access to 'neutron' database from '%'
+  mysql_user:
+    name: neutron
+    password: "{{ neutron_db_pass }}"
+    priv: 'neutron.*:ALL,GRANT'
+    state: present
+    host: "%"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+
+- name: Controller | Database | Create database user 'neutron', with access to 'neutron' database from 'localhost'
+  mysql_user:
+    name: neutron
+    password: "{{ neutron_db_pass }}"
+    priv: 'neutron.*:ALL,GRANT'
+    state: present
+    host: "localhost"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+
+
+## Create database 'heat' and user 'heat' to access it locally and remotely
+- name: Controller | Database | Create a new database with name 'heat'
+  mysql_db:
+    name: heat
+    state: present
+
+
+- name: Controller | Database | Create database user 'heat', with access to 'heat' database from '%'
+  mysql_user:
+    name: heat
+    password: "{{ heat_db_pass }}"
+    priv: 'heat.*:ALL,GRANT'
+    state: present
+    host: "%"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+
+- name: Controller | Database | Create database user 'heat', with access to 'heat' database from 'localhost'
+  mysql_user:
+    name: heat
+    password: "{{ heat_db_pass }}"
+    priv: 'heat.*:ALL,GRANT'
+    state: present
+    host: "localhost"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"

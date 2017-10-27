@@ -1,0 +1,50 @@
+# invoked by: ../main.yml
+  - name: Controller | RabbitMQ and Keystone Setup | Register in variable 'rabbitmq_openstack_user_exists'
+    shell: rabbitmqctl list_users | grep openstack | awk -F'[' '{print $1}'
+    tags: rabbit
+    register: rabbitmq_openstack_user_exists
+
+  - debug:
+      msg: "{{ rabbitmq_openstack_user_exists.stdout }}"
+    tags: rabbit
+
+  - name: Controller | RabbitMQ and Keystone Setup | Add user 'openstack' to RabbitMQ
+    shell: 'rabbitmqctl add_user openstack {{ rabbit_pass }}'
+    ignore_errors: yes
+    tags: rabbit
+    when: rabbitmq_openstack_user_exists.stdout == ""
+
+  - name: Controller | RabbitMQ and Keystone Setup | Set permissions for user 'openstack' to RabbitMQ
+    shell: 'rabbitmqctl set_permissions openstack ".*" ".*" ".*"'
+    tags: rabbit
+    when: rabbitmq_openstack_user_exists.stdout == ""
+
+  - name: Controller | RabbitMQ and Keystone Setup | 'keystone-manage fernet_setup', user 'keystone' and group 'keystone'
+    shell: 'keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone'
+    tags:
+      - keystone_manage
+      - keystone_manage_1
+
+  - name: Controller | RabbitMQ and Keystone Setup | 'keystone-manage credential_setup', user 'keystone' and group 'keystone'
+    shell: 'keystone-manage credential_setup --keystone-user keystone --keystone-group keystone'
+#            keystone-manage credential_setup --keystone-user keystone --keystone-group keystone
+    tags:
+      - keystone_manage
+      - keystone_manage_2
+
+  - name: Controller | RabbitMQ and Keystone Setup | 'keystone-manage bootstrap'
+    shell: 'keystone-manage bootstrap --bootstrap-password {{ api_password }} --bootstrap-admin-url http://{{ controller_management_ip }}:35357/v3/ --bootstrap-internal-url http://{{ controller_management_ip }}:35357/v3/ --bootstrap-public-url http://{{ controller_management_ip }}:5000/v3/ --bootstrap-region-id RegionOne'
+    tags:
+      - keystone_manage
+      - keystone_manage_3
+
+
+  - name: Controller | RabbitMQ and Keystone Setup | Remove file /var/lib/keystone/keystone.db
+    file:
+      state: absent
+      path: "/var/lib/keystone/keystone.db"
+
+  - name: Controller | RabbitMQ and Keystone Setup | Apache2 restart
+    service:
+      name: apache2
+      state: restarted

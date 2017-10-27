@@ -1,0 +1,79 @@
+# invoked by: ../main.yml
+---
+  - name: APT | Update
+    apt:
+      update_cache: yes
+
+  - name: APT | Install Apt Packages
+    apt: name={{item}} state=present
+    with_items:
+    - software-properties-common
+    - aptitude
+
+  - name: APT | Upgrade
+    apt:
+      update_cache: yes
+      upgrade: full
+      force: yes
+
+#  - name: APT | Add GPG key into apt
+#    sudo: yes
+#    apt_key:
+#      url: "http://ubuntu-cloud.archive.canonical.com/ubuntu/dists/xenial-updates/newton/Release.gpg"
+#      state: present
+#
+#  - name: APT | Add repository
+#    apt_repository:
+#      repo: 'deb-src http://ubuntu-cloud.archive.canonical.com/ubuntu xenial-updates/newton main'
+#      state: present
+##                     http://ubuntu-cloud.archive.canonical.com/ubuntu/dists/xenial-updates/newton/
+
+## Above doesn't work
+  - name: APT | Add repository
+    shell: add-apt-repository -y cloud-archive:ocata;
+
+
+
+  - name: APT | Update
+    apt:
+      update_cache: yes
+
+  - name: APT | Upgrade
+    apt:
+      update_cache: yes
+      upgrade: full
+      force: yes
+
+#  - name: APT | Restart machine
+#    command: sleep 2 && shutdown -r now "Ansible updates triggered"
+#    async: 1
+#    poll: 0
+#    ignore_errors: true
+#
+#  - name: APT | Waiting for server to come back
+#    local_action:
+#      module: wait_for
+#      host: "{{ inventory_hostname }}"
+#      state: started
+#      port: 22
+#      delay: 60
+#      timeout: 320
+#    become: no
+
+  - name: APT | Restart host
+    shell: "sleep 2 && shutdown -r now"
+    async: 1
+    poll: 0
+    ignore_errors: true
+    tags: restart_hosts
+
+  - name: APT | Waiting for server to come back
+    wait_for:
+      host: "{{ inventory_hostname }}"
+      state: started
+      port: 22
+      delay: 60
+      timeout: 360
+    delegate_to: localhost
+    become: no
+    tags: restart_hosts

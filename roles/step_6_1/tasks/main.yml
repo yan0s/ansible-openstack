@@ -1,0 +1,24 @@
+- name: Controller | Openstack Services Restart | All controller node services restart
+  service:
+    name: "{{item}}"
+    state: restarted
+  with_items:
+  - mysql
+  - memcached
+  - apache2
+  - rabbitmq-server
+  - glance-registry
+  - glance-api
+  - nova-api
+  - nova-consoleauth
+  - nova-scheduler
+  - nova-conductor
+  - nova-novncproxy
+  - neutron-server
+  - neutron-dhcp-agent
+  - neutron-metadata-agent
+  - neutron-openvswitch-agent
+  - neutron-l3-agent
+  - heat-api
+  - heat-api-cfn
+  - heat-engine
