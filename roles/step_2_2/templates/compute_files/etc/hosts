@@ -1,4 +1,4 @@
-127.0.0.1	localhost	charCompute1
+127.0.0.1	localhost
 
 # controller
 {{ controller_management_ip }}       controller

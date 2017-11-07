@@ -34,3 +34,12 @@
     group: root
     mode: 0644
     force: yes
+
+- name: Compute | Nova nova-compute.conf config file
+  template:
+    src: compute_files/etc/nova/nova-compute.conf
+    dest: /etc/nova/nova-compute.conf
+    owner: nova
+    group: nova
+    mode: 0640
+    force: yes

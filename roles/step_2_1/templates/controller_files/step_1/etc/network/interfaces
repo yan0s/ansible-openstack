@@ -11,7 +11,6 @@ iface lo inet loopback
 # The management network interface
 auto {{ management_interface }}
 iface {{ management_interface }} inet static
-#        address {{ management_ip }}
         address {{ management_ip }}
         netmask {{ management_netmask }}
         gateway {{ management_gateway }}
